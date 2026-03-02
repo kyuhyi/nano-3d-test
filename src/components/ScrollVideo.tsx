@@ -43,8 +43,6 @@ export default function ScrollVideo({ framesPath = '/frames', showOverlay = true
     if (frameCount === 0) return;
 
     let loadedCount = 0;
-    
-    // Helper to pad the frame index (e.g., 1 -> 0001)
     const pad = (num: number) => String(num).padStart(4, '0');
 
     for (let i = 1; i <= frameCount; i++) {
@@ -61,105 +59,140 @@ export default function ScrollVideo({ framesPath = '/frames', showOverlay = true
         console.error(`Failed to load frame_${pad(i)}.webp`);
         loadedCount++;
         if (loadedCount === frameCount) {
-          setIsLoaded(true); // Proceed anyway to prevent indefinite loading
+          setIsLoaded(true);
         }
       }
     }
   }, [frameCount, imagesMap, framesPath]);
 
+  // Draw frame on canvas with proper scaling
+  const drawFrame = (img: HTMLImageElement) => {
+    if (!canvasRef.current) return;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Set canvas to viewport size for crisp rendering
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+
+    // Calculate cover fit
+    const imgRatio = img.width / img.height;
+    const canvasRatio = rect.width / rect.height;
+    
+    let drawWidth, drawHeight, offsetX, offsetY;
+    
+    if (imgRatio > canvasRatio) {
+      // Image is wider - fit by height
+      drawHeight = rect.height;
+      drawWidth = drawHeight * imgRatio;
+      offsetX = (rect.width - drawWidth) / 2;
+      offsetY = 0;
+    } else {
+      // Image is taller - fit by width
+      drawWidth = rect.width;
+      drawHeight = drawWidth / imgRatio;
+      offsetX = 0;
+      offsetY = (rect.height - drawHeight) / 2;
+    }
+
+    ctx.clearRect(0, 0, rect.width, rect.height);
+    ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+  };
+
   // Initial draw
   useEffect(() => {
-    if (isLoaded && imagesMap.has(1) && canvasRef.current) {
-      const ctx = canvasRef.current.getContext('2d');
-      const img = imagesMap.get(1)!;
-      // Set canvas size to image size
-      canvasRef.current.width = img.width;
-      canvasRef.current.height = img.height;
-      
-      if (ctx) {
-        ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-        ctx.drawImage(img, 0, 0);
-      }
+    if (isLoaded && imagesMap.has(1)) {
+      drawFrame(imagesMap.get(1)!);
     }
   }, [isLoaded, imagesMap]);
 
+  // Redraw on resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (isLoaded && imagesMap.size > 0) {
+        const currentProgress = scrollYProgress.get();
+        let frameIndex = Math.floor(currentProgress * frameCount);
+        if (frameIndex < 1) frameIndex = 1;
+        if (frameIndex > frameCount) frameIndex = frameCount;
+        const img = imagesMap.get(frameIndex);
+        if (img) drawFrame(img);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isLoaded, imagesMap, frameCount, scrollYProgress]);
+
   // Handle Scroll updates
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    if (!isLoaded || frameCount === 0 || !canvasRef.current) return;
+    if (!isLoaded || frameCount === 0) return;
     
-    // Determine the frame index (1 to frameCount) based on scroll progress
     let frameIndex = Math.floor(latest * frameCount);
-    // Ensure index is within boundaries
     if (frameIndex < 1) frameIndex = 1;
     if (frameIndex > frameCount) frameIndex = frameCount;
 
     const img = imagesMap.get(frameIndex);
-    const ctx = canvasRef.current.getContext('2d');
-    
-    if (img && ctx) {
-      ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-      ctx.drawImage(img, 0, 0);
-    }
+    if (img) drawFrame(img);
   });
 
   return (
-    <div ref={containerRef} className="relative h-[400vh] w-full bg-black">
-      <div className="sticky top-0 flex h-screen w-full items-center justify-center overflow-hidden">
+    <div ref={containerRef} className="relative h-[300vh] md:h-[400vh] w-full bg-black">
+      <div className="sticky top-0 flex h-[100dvh] w-full items-center justify-center overflow-hidden">
         {error ? (
-          <div className="absolute z-50 text-red-500 bg-black/80 p-8 rounded-xl font-mono text-center max-w-lg shadow-2xl border border-red-500/30">
-            <h3 className="text-xl mb-4 text-red-400">Missing Video Frames</h3>
-            <p>{error}</p>
-            <div className="mt-4 text-sm text-zinc-400 leading-relaxed text-left">
-              1. Place a <code className="bg-zinc-800 px-1 py-0.5 rounded text-zinc-300 shadow-inner">video.mp4</code> file inside the <code className="bg-zinc-800 px-1 py-0.5 rounded text-zinc-300 shadow-inner">public</code> folder.<br/>
-              2. Run <code className="bg-emerald-900 px-1.5 py-1 rounded text-emerald-300 font-bold block mt-2 text-base shadow-inner">npm run extract-frames</code>
-            </div>
+          <div className="absolute z-50 text-red-500 bg-black/80 p-4 md:p-8 rounded-xl font-mono text-center max-w-sm md:max-w-lg shadow-2xl border border-red-500/30 mx-4">
+            <h3 className="text-lg md:text-xl mb-4 text-red-400">Missing Video Frames</h3>
+            <p className="text-sm md:text-base">{error}</p>
           </div>
         ) : !isLoaded ? (
           <div className="flex flex-col h-full w-full items-center justify-center bg-zinc-900 border border-zinc-800">
-            <div className="h-14 w-14 animate-spin rounded-full border-4 border-zinc-700 border-t-emerald-500 mb-6 drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]"></div>
-            <p className="text-zinc-400 animate-pulse tracking-widest text-sm font-medium">LOADING HIGH-RES ASSETS...</p>
+            <div className="h-10 w-10 md:h-14 md:w-14 animate-spin rounded-full border-4 border-zinc-700 border-t-emerald-500 mb-4 md:mb-6 drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]"></div>
+            <p className="text-zinc-400 animate-pulse tracking-widest text-xs md:text-sm font-medium">LOADING...</p>
           </div>
         ) : null}
 
         <canvas
           ref={canvasRef}
-          className="h-full w-full object-cover opacity-80 mix-blend-screen"
+          className="absolute inset-0 w-full h-full"
+          style={{ opacity: 0.85 }}
         />
 
         {showOverlay && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none px-4">
             <motion.div
               style={{ opacity: useTransform(scrollYProgress, [0, 0.2, 0.4], [1, 1, 0]) }}
               className="text-center"
             >
-              <h1 className="font-sans text-6xl font-bold tracking-tighter text-white sm:text-8xl md:text-9xl drop-shadow-[0_0_30px_rgba(0,0,0,0.8)]">
+              <h1 className="font-sans text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-bold tracking-tighter text-white drop-shadow-[0_0_30px_rgba(0,0,0,0.8)]">
                 AURA <span className="text-emerald-500">V1</span>
               </h1>
-              <p className="mt-4 font-mono text-sm tracking-widest text-zinc-300 uppercase drop-shadow-[0_0_10px_rgba(0,0,0,0.8)]">
-                Scroll to discover the engineering
+              <p className="mt-2 md:mt-4 font-mono text-xs md:text-sm tracking-widest text-zinc-300 uppercase drop-shadow-[0_0_10px_rgba(0,0,0,0.8)]">
+                Scroll to discover
               </p>
             </motion.div>
 
             <motion.div
               style={{ opacity: useTransform(scrollYProgress, [0.4, 0.6, 0.8], [0, 1, 0]) }}
-              className="absolute text-center"
+              className="absolute text-center px-4"
             >
-              <h2 className="font-sans text-4xl font-medium tracking-tight text-white sm:text-6xl drop-shadow-[0_0_20px_rgba(0,0,0,0.8)]">
+              <h2 className="font-sans text-2xl sm:text-4xl md:text-6xl font-medium tracking-tight text-white drop-shadow-[0_0_20px_rgba(0,0,0,0.8)]">
                 Precision in Every Part
               </h2>
-              <p className="mt-4 max-w-md font-sans text-lg text-zinc-300 mx-auto drop-shadow-[0_0_10px_rgba(0,0,0,0.8)]">
-                Thousands of components working in perfect harmony.
+              <p className="mt-2 md:mt-4 max-w-xs md:max-w-md font-sans text-sm md:text-lg text-zinc-300 mx-auto drop-shadow-[0_0_10px_rgba(0,0,0,0.8)]">
+                Thousands of components in harmony.
               </p>
             </motion.div>
 
             <motion.div
               style={{ opacity: useTransform(scrollYProgress, [0.8, 0.9, 1], [0, 1, 1]) }}
-              className="absolute text-center"
+              className="absolute text-center px-4"
             >
-              <h2 className="font-sans text-4xl font-medium tracking-tight text-white sm:text-6xl drop-shadow-[0_0_20px_rgba(0,0,0,0.8)]">
+              <h2 className="font-sans text-2xl sm:text-4xl md:text-6xl font-medium tracking-tight text-white drop-shadow-[0_0_20px_rgba(0,0,0,0.8)]">
                 The Future of Mobility
               </h2>
-              <button className="pointer-events-auto mt-8 rounded-full border border-white/20 bg-white/10 px-8 py-3 font-sans text-sm font-medium text-white backdrop-blur-md transition-colors hover:bg-white hover:text-black shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.3)]">
+              <button className="pointer-events-auto mt-4 md:mt-8 rounded-full border border-white/20 bg-white/10 px-6 py-2 md:px-8 md:py-3 font-sans text-xs md:text-sm font-medium text-white backdrop-blur-md transition-colors active:bg-white active:text-black hover:bg-white hover:text-black shadow-[0_0_20px_rgba(255,255,255,0.1)]">
                 Reserve Yours
               </button>
             </motion.div>
