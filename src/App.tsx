@@ -5,8 +5,8 @@ export default function App() {
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-emerald-500/30">
       <main>
-        {/* Hero - Scroll Video (원래대로) */}
-        <ScrollVideo />
+        {/* Hero - 이전 영상 프레임 */}
+        <ScrollVideo framesPath="/frames-hero" showOverlay={true} />
 
         {/* Specs Section */}
         <section className="h-screen flex items-center justify-center bg-zinc-950 px-4 scroll-smooth">
@@ -37,8 +37,8 @@ export default function App() {
           </div>
         </section>
 
-        {/* Bottom 3D Scroll Video */}
-        <ScrollVideo />
+        {/* Bottom - 새 영상 프레임 */}
+        <ScrollVideo framesPath="/frames" showOverlay={false} />
       </main>
     </div>
   );

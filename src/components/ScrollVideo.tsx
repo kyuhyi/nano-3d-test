@@ -1,7 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform, useMotionValueEvent } from 'motion/react';
 
-export default function ScrollVideo() {
+interface ScrollVideoProps {
+  framesPath?: string;
+  showOverlay?: boolean;
+}
+
+export default function ScrollVideo({ framesPath = '/frames', showOverlay = true }: ScrollVideoProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [frameCount, setFrameCount] = useState(0);
@@ -16,7 +21,7 @@ export default function ScrollVideo() {
 
   // Fetch metadata to get frame count
   useEffect(() => {
-    fetch('/frames/metadata.json')
+    fetch(`${framesPath}/metadata.json`)
       .then(res => {
         if (!res.ok) throw new Error('metadata.json not found');
         return res.json();
@@ -31,7 +36,7 @@ export default function ScrollVideo() {
       .catch(err => {
         setError('Error loading frames. Did you run the extraction script? ' + err.message);
       });
-  }, []);
+  }, [framesPath]);
 
   // Preload frames
   useEffect(() => {
@@ -44,7 +49,7 @@ export default function ScrollVideo() {
 
     for (let i = 1; i <= frameCount; i++) {
       const img = new Image();
-      img.src = `/frames/frame_${pad(i)}.webp`;
+      img.src = `${framesPath}/frame_${pad(i)}.webp`;
       img.onload = () => {
         imagesMap.set(i, img);
         loadedCount++;
@@ -60,7 +65,7 @@ export default function ScrollVideo() {
         }
       }
     }
-  }, [frameCount, imagesMap]);
+  }, [frameCount, imagesMap, framesPath]);
 
   // Initial draw
   useEffect(() => {
@@ -121,43 +126,45 @@ export default function ScrollVideo() {
           className="h-full w-full object-cover opacity-80 mix-blend-screen"
         />
 
-        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <motion.div
-            style={{ opacity: useTransform(scrollYProgress, [0, 0.2, 0.4], [1, 1, 0]) }}
-            className="text-center"
-          >
-            <h1 className="font-sans text-6xl font-bold tracking-tighter text-white sm:text-8xl md:text-9xl drop-shadow-[0_0_30px_rgba(0,0,0,0.8)]">
-              AURA <span className="text-emerald-500">V1</span>
-            </h1>
-            <p className="mt-4 font-mono text-sm tracking-widest text-zinc-300 uppercase drop-shadow-[0_0_10px_rgba(0,0,0,0.8)]">
-              Scroll to discover the engineering
-            </p>
-          </motion.div>
+        {showOverlay && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+            <motion.div
+              style={{ opacity: useTransform(scrollYProgress, [0, 0.2, 0.4], [1, 1, 0]) }}
+              className="text-center"
+            >
+              <h1 className="font-sans text-6xl font-bold tracking-tighter text-white sm:text-8xl md:text-9xl drop-shadow-[0_0_30px_rgba(0,0,0,0.8)]">
+                AURA <span className="text-emerald-500">V1</span>
+              </h1>
+              <p className="mt-4 font-mono text-sm tracking-widest text-zinc-300 uppercase drop-shadow-[0_0_10px_rgba(0,0,0,0.8)]">
+                Scroll to discover the engineering
+              </p>
+            </motion.div>
 
-          <motion.div
-            style={{ opacity: useTransform(scrollYProgress, [0.4, 0.6, 0.8], [0, 1, 0]) }}
-            className="absolute text-center"
-          >
-            <h2 className="font-sans text-4xl font-medium tracking-tight text-white sm:text-6xl drop-shadow-[0_0_20px_rgba(0,0,0,0.8)]">
-              Precision in Every Part
-            </h2>
-            <p className="mt-4 max-w-md font-sans text-lg text-zinc-300 mx-auto drop-shadow-[0_0_10px_rgba(0,0,0,0.8)]">
-              Thousands of components working in perfect harmony.
-            </p>
-          </motion.div>
+            <motion.div
+              style={{ opacity: useTransform(scrollYProgress, [0.4, 0.6, 0.8], [0, 1, 0]) }}
+              className="absolute text-center"
+            >
+              <h2 className="font-sans text-4xl font-medium tracking-tight text-white sm:text-6xl drop-shadow-[0_0_20px_rgba(0,0,0,0.8)]">
+                Precision in Every Part
+              </h2>
+              <p className="mt-4 max-w-md font-sans text-lg text-zinc-300 mx-auto drop-shadow-[0_0_10px_rgba(0,0,0,0.8)]">
+                Thousands of components working in perfect harmony.
+              </p>
+            </motion.div>
 
-          <motion.div
-            style={{ opacity: useTransform(scrollYProgress, [0.8, 0.9, 1], [0, 1, 1]) }}
-            className="absolute text-center"
-          >
-            <h2 className="font-sans text-4xl font-medium tracking-tight text-white sm:text-6xl drop-shadow-[0_0_20px_rgba(0,0,0,0.8)]">
-              The Future of Mobility
-            </h2>
-            <button className="pointer-events-auto mt-8 rounded-full border border-white/20 bg-white/10 px-8 py-3 font-sans text-sm font-medium text-white backdrop-blur-md transition-colors hover:bg-white hover:text-black shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.3)]">
-              Reserve Yours
-            </button>
-          </motion.div>
-        </div>
+            <motion.div
+              style={{ opacity: useTransform(scrollYProgress, [0.8, 0.9, 1], [0, 1, 1]) }}
+              className="absolute text-center"
+            >
+              <h2 className="font-sans text-4xl font-medium tracking-tight text-white sm:text-6xl drop-shadow-[0_0_20px_rgba(0,0,0,0.8)]">
+                The Future of Mobility
+              </h2>
+              <button className="pointer-events-auto mt-8 rounded-full border border-white/20 bg-white/10 px-8 py-3 font-sans text-sm font-medium text-white backdrop-blur-md transition-colors hover:bg-white hover:text-black shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.3)]">
+                Reserve Yours
+              </button>
+            </motion.div>
+          </div>
+        )}
       </div>
     </div>
   );
