@@ -5,35 +5,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-emerald-500/30">
       <main>
-        {/* Hero Section */}
-        <section className="h-screen flex items-center justify-center bg-gradient-to-b from-black via-zinc-950 to-black relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-emerald-500/10 via-transparent to-transparent" />
-          <div className="max-w-5xl text-center space-y-8 px-4 relative z-10">
-            <p className="text-emerald-500 text-sm uppercase tracking-[0.3em] font-medium">Introducing</p>
-            <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tighter">
-              Aura <span className="text-emerald-500">V1</span>
-            </h1>
-            <p className="text-xl md:text-2xl text-zinc-400 max-w-2xl mx-auto leading-relaxed">
-              The future of electric performance.<br />Redefined.
-            </p>
-            <div className="flex items-center justify-center gap-6 pt-8">
-              <button className="px-8 py-4 bg-emerald-500 text-black font-semibold rounded-full hover:bg-emerald-400 transition-all duration-300 hover:scale-105">
-                Pre-order Now
-              </button>
-              <button className="px-8 py-4 border border-white/20 rounded-full hover:bg-white/10 transition-all duration-300">
-                Learn More
-              </button>
-            </div>
-          </div>
-          {/* Scroll indicator */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-            <div className="w-6 h-10 border-2 border-white/30 rounded-full flex items-start justify-center p-2">
-              <div className="w-1.5 h-3 bg-white/50 rounded-full" />
-            </div>
-          </div>
-        </section>
-
-        {/* 3D Scroll Video Section */}
+        {/* Hero - Scroll Video (원래대로) */}
         <ScrollVideo />
 
         {/* Specs Section */}
@@ -64,6 +36,9 @@ export default function App() {
             </div>
           </div>
         </section>
+
+        {/* Bottom 3D Scroll Video */}
+        <ScrollVideo />
       </main>
     </div>
   );
