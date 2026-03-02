@@ -5,11 +5,6 @@ html {
   scroll-behavior: smooth;
 }
 
-body {
-  overscroll-behavior: none;
-  -webkit-overflow-scrolling: touch;
-}
-
 /* Fix for mobile browsers with dynamic viewport */
 @supports (height: 100dvh) {
   .h-screen {
@@ -17,20 +12,7 @@ body {
   }
 }
 
-/* Prevent pull-to-refresh on mobile */
-html, body {
-  overflow-x: hidden;
-}
-
 /* Canvas rendering optimization */
 canvas {
   image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
-}
-
-/* Touch feedback */
-@media (hover: none) {
-  button:active {
-    transform: scale(0.95);
-  }
 }
