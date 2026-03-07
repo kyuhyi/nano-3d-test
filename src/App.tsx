@@ -1,5 +1,6 @@
 import React from 'react';
 import ScrollVideo from './components/ScrollVideo';
+import VideoFrameExtractor from './components/VideoFrameExtractor';
 
 export default function App() {
   return (
@@ -36,6 +37,9 @@ export default function App() {
             </div>
           </div>
         </section>
+
+        {/* Video Frame Extractor */}
+        <VideoFrameExtractor />
 
         {/* Bottom - 새 영상 프레임 */}
         <ScrollVideo framesPath="/frames" showOverlay={false} />
