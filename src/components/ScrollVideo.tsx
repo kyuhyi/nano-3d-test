@@ -170,9 +170,26 @@ export default function ScrollVideo({ framesPath = '/frames', showOverlay = true
                 alt="BSD Class" 
                 className="h-20 md:h-32 lg:h-40 mx-auto drop-shadow-[0_0_30px_rgba(0,0,0,0.8)]"
               />
-              <p className="mt-4 md:mt-6 font-mono text-xs md:text-sm tracking-widest text-zinc-300 uppercase drop-shadow-[0_0_10px_rgba(0,0,0,0.8)]">
-                Scroll to discover
-              </p>
+              {/* 스크롤 마우스 애니메이션 */}
+              <div className="mt-8 md:mt-12 flex flex-col items-center">
+                <div className="w-6 h-10 md:w-8 md:h-12 border-2 border-emerald-500 rounded-full flex justify-center p-2">
+                  <motion.div 
+                    className="w-1.5 h-3 md:w-2 md:h-4 bg-emerald-500 rounded-full"
+                    animate={{ y: [0, 8, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                  />
+                </div>
+                <motion.svg 
+                  className="w-4 h-4 md:w-5 md:h-5 text-emerald-500 mt-2"
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                  animate={{ y: [0, 5, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </motion.svg>
+              </div>
             </motion.div>
           </div>
         )}
