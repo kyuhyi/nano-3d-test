@@ -165,36 +165,14 @@ export default function ScrollVideo({ framesPath = '/frames', showOverlay = true
               style={{ opacity: useTransform(scrollYProgress, [0, 0.2, 0.4], [1, 1, 0]) }}
               className="text-center"
             >
-              <h1 className="font-sans text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-bold tracking-tighter text-white drop-shadow-[0_0_30px_rgba(0,0,0,0.8)]">
-                AURA <span className="text-emerald-500">V1</span>
-              </h1>
-              <p className="mt-2 md:mt-4 font-mono text-xs md:text-sm tracking-widest text-zinc-300 uppercase drop-shadow-[0_0_10px_rgba(0,0,0,0.8)]">
+              <img 
+                src="https://cdn.imweb.me/thumbnail/20260305/249b4e4bde696.png" 
+                alt="BSD Class" 
+                className="h-20 md:h-32 lg:h-40 mx-auto drop-shadow-[0_0_30px_rgba(0,0,0,0.8)]"
+              />
+              <p className="mt-4 md:mt-6 font-mono text-xs md:text-sm tracking-widest text-zinc-300 uppercase drop-shadow-[0_0_10px_rgba(0,0,0,0.8)]">
                 Scroll to discover
               </p>
-            </motion.div>
-
-            <motion.div
-              style={{ opacity: useTransform(scrollYProgress, [0.4, 0.6, 0.8], [0, 1, 0]) }}
-              className="absolute text-center px-4"
-            >
-              <h2 className="font-sans text-2xl sm:text-4xl md:text-6xl font-medium tracking-tight text-white drop-shadow-[0_0_20px_rgba(0,0,0,0.8)]">
-                Precision in Every Part
-              </h2>
-              <p className="mt-2 md:mt-4 max-w-xs md:max-w-md font-sans text-sm md:text-lg text-zinc-300 mx-auto drop-shadow-[0_0_10px_rgba(0,0,0,0.8)]">
-                Thousands of components in harmony.
-              </p>
-            </motion.div>
-
-            <motion.div
-              style={{ opacity: useTransform(scrollYProgress, [0.8, 0.9, 1], [0, 1, 1]) }}
-              className="absolute text-center px-4"
-            >
-              <h2 className="font-sans text-2xl sm:text-4xl md:text-6xl font-medium tracking-tight text-white drop-shadow-[0_0_20px_rgba(0,0,0,0.8)]">
-                The Future of Mobility
-              </h2>
-              <button className="pointer-events-auto mt-4 md:mt-8 rounded-full border border-white/20 bg-white/10 px-6 py-2 md:px-8 md:py-3 font-sans text-xs md:text-sm font-medium text-white backdrop-blur-md transition-colors active:bg-white active:text-black hover:bg-white hover:text-black shadow-[0_0_20px_rgba(255,255,255,0.1)]">
-                Reserve Yours
-              </button>
             </motion.div>
           </div>
         )}
